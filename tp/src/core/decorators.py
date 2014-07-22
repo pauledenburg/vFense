@@ -20,15 +20,15 @@ def return_status_tuple(fn):
     """Return the status of the db_call, plus the number of documents"""
     def db_wrapper(*args, **kwargs):
         status = fn(*args, **kwargs)
-        if status['deleted'] > 0:
+        if 'deleted' in status.keys() and status['deleted'] > 0:
             return_code = (DbCodes.Deleted, status['deleted'], None, [])
 
-        elif status['errors'] > 0:
+        elif 'errors' in status.keys() and status['errors'] > 0:
             return_code = (
                 DbCodes.Errors, status['errors'], status['first_error'], []
             )
 
-        elif status['inserted'] > 0 and status['replaced'] < 1:
+        elif 'inserted' in status.keys() and status['inserted'] > 0 and 'replaced' in status.keys() and status['replaced'] < 1:
             if status.get('generated_keys'):
                 return_code = (
                     DbCodes.Inserted, status['inserted'],
@@ -40,7 +40,7 @@ def return_status_tuple(fn):
                     None, []
                 )
 
-        elif status['inserted'] > 0 and status['replaced'] > 0:
+        elif 'inserted' in status.keys() and status['inserted'] > 0 and 'replaced' in status.keys() and status['replaced'] > 0:
             if status.get('generated_keys'):
                 return_code = (
                     DbCodes.Inserted, (status['inserted'], status['replaced']),
@@ -52,13 +52,13 @@ def return_status_tuple(fn):
                     None, []
                 )
 
-        elif status['replaced'] > 0 and status['inserted'] < 1:
+        elif 'replaced' in status.keys() and status['replaced'] > 0 and 'inserted' in status.keys() and status['inserted'] < 1:
             return_code = (DbCodes.Replaced, status['replaced'], None, [])
 
-        elif status['skipped'] > 0:
+        elif 'replaced' in status.keys() and status['skipped'] > 0:
             return_code = (DbCodes.Skipped, status['skipped'], None, [])
 
-        elif status['unchanged'] > 0:
+        elif 'unchanged' in status.keys() and status['unchanged'] > 0:
             return_code = (DbCodes.Unchanged, status['unchanged'], None, [])
 
         else:
